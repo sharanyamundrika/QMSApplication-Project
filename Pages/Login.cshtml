@@ -1,0 +1,233 @@
+﻿@page
+@model QMSApplication.Pages.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-box {
+        width: 400px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+        .login-box h1 {
+            text-align: center;
+            color: #123a72;
+            margin-bottom: 30px;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+    .password-container {
+        position: relative;
+    }
+
+        .password-container input {
+            padding-right: 70px;
+        }
+
+    .show-password {
+        position: absolute;
+        right: 8px;
+        top: 7px;
+        border: none;
+        background: none;
+        color: #123a72;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: #123a72;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+
+        .login-button:hover {
+            background-color: #1d4f91;
+        }
+
+    .message {
+        margin-bottom: 18px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #ffe6e6;
+        color: #b00020;
+        text-align: center;
+    }
+
+    .validation-message {
+        color: #b00020;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .links {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+        .links p {
+            margin: 10px 0;
+        }
+
+        .links a {
+            color: #123a72;
+            text-decoration: none;
+        }
+
+            .links a:hover {
+                text-decoration: underline;
+            }
+</style>
+
+<div class="login-page">
+
+    <div class="login-box">
+
+        <h1>QMS Login</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="message">
+                @Model.Message
+            </div>
+        }
+
+        <form method="post">
+
+            <!-- Username -->
+            <div class="form-group">
+
+                <label asp-for="Username">
+                    Username
+                </label>
+
+                <input asp-for="Username"
+                       placeholder="Enter username"
+                       autocomplete="username" />
+
+                <span asp-validation-for="Username"
+                      class="validation-message">
+                </span>
+
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+
+                <label asp-for="Password">
+                    Password
+                </label>
+
+                <div class="password-container">
+
+                    <input asp-for="Password"
+                           id="password"
+                           type="password"
+                           placeholder="Enter password"
+                           autocomplete="current-password" />
+
+                    <button type="button"
+                            class="show-password"
+                            onclick="togglePassword()">
+                        Show
+                    </button>
+
+                </div>
+
+                <span asp-validation-for="Password"
+                      class="validation-message">
+                </span>
+
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="login-button">
+                Login
+            </button>
+
+        </form>
+
+        <!-- Forgot Password and Registration -->
+        <div class="links">
+
+            <p>
+                <a href="/ForgotPassword">
+                    Forgot Password?
+                </a>
+            </p>
+
+            <p>
+                <a href="/Register">
+                    New User / Register
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    function togglePassword() {
+
+        var password = document.getElementById("password");
+        var button = document.querySelector(".show-password");
+
+        if (password.type === "password") {
+
+            password.type = "text";
+            button.textContent = "Hide";
+
+        } else {
+
+            password.type = "password";
+            button.textContent = "Show";
+        }
+    }
+
+</script>

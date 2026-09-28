@@ -1,0 +1,51 @@
+﻿@page
+@model QMSApplication.Pages.ComingSoonModel
+
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = "Coming Soon";
+}
+
+<style>
+    .coming-soon-page {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f4f6f9;
+        padding: 40px 20px;
+    }
+
+    .coming-soon-box {
+        width: 500px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+
+    .coming-soon-box h1 {
+        color: #123a72;
+        margin-bottom: 20px;
+    }
+
+    .coming-soon-box p {
+        font-size: 18px;
+        color: #555;
+    }
+</style>
+
+<div class="coming-soon-page">
+
+    <div class="coming-soon-box">
+
+        <h1>This module is coming soon.</h1>
+
+        <p>
+            This module is currently under development.
+        </p>
+
+    </div>
+
+</div>

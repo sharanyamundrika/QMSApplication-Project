@@ -1,0 +1,80 @@
+﻿@page
+@model QMSApplication.Pages.WelcomeModel
+
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<style>
+    .welcome-page {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f4f6f9;
+        padding: 40px 20px;
+    }
+
+    .welcome-box {
+        width: 450px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+
+    .welcome-box h1 {
+        color: #123a72;
+        margin-bottom: 20px;
+    }
+
+    .welcome-box p {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    .welcome-box button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: #123a72;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    .welcome-box .logout {
+        background-color: #777;
+    }
+</style>
+
+<div class="welcome-page">
+
+    <div class="welcome-box">
+
+        <h1>Welcome to the Portal</h1>
+
+        <p>
+            
+            <strong>@Model.Username</strong>
+        </p>
+
+        <form method="post">
+            <input type="hidden" asp-for="Username" />
+            <button type="submit">
+                Continue to Dashboard
+            </button>
+        </form>
+
+        <form method="post" asp-page-handler="Logout">
+            <button type="submit" class="logout">
+                Logout
+            </button>
+        </form>
+
+    </div>
+
+</div>

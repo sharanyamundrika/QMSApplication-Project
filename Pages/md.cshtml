@@ -1,0 +1,156 @@
+﻿@page
+@model QMSApplication.Pages.MDModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>M & D - QMS</title>
+
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f9;
+            }
+
+            .header {
+                background-color: #123a72;
+                color: white;
+                padding: 20px 30px;
+            }
+
+                .header h1 {
+                    margin: 0;
+                }
+
+            .content {
+                padding: 30px;
+            }
+
+            .card {
+                background-color: white;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .table-container {
+                overflow-x: auto;
+                margin-top: 20px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 1800px;
+            }
+
+            th {
+                background-color: #123a72;
+                color: white;
+                padding: 12px;
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            td {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                white-space: nowrap;
+            }
+
+            tr:hover {
+                background-color: #f5f5f5;
+            }
+
+            .no-records {
+                padding: 20px;
+                color: #666;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Milestones & Delivery</h1>
+    </div>
+
+    <div class="content">
+
+        <div class="card">
+
+            <h2>M & D Records</h2>
+
+            @if (Model.Records.Count == 0)
+            {
+                <div class="no-records">
+                    No M & D records found.
+                </div>
+            }
+            else
+            {
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>S.No</th>
+                                <th>Milestone Name</th>
+                                <th>Deliverable Name</th>
+                                <th>Deliverable Type</th>
+                                <th>Milestone Target Date</th>
+                                <th>Deliverable Target Date</th>
+                                <th>Assigned To</th>
+                                <th>Any Schedule Deviation</th>
+                                <th>Deliverable at Which Activity</th>
+                                <th>Reason for Schedule Deviation</th>
+                                <th>Deliverable Actual Completed Date</th>
+                                <th>Milestone Achieved Date</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var record in Model.Records)
+                            {
+                                <tr>
+                                    <td>@record.RecordID</td>
+                                    <td>@record.SNo</td>
+                                    <td>@record.MilestoneName</td>
+                                    <td>@record.DeliverableName</td>
+                                    <td>@record.DeliverableType</td>
+                                    <td>@record.MilestoneTargetDate</td>
+                                    <td>@record.DeliverableTargetDate</td>
+                                    <td>@record.AssignedTo</td>
+                                    <td>@record.ScheduleDeviation</td>
+                                    <td>@record.DeliverableActivity</td>
+                                    <td>@record.DeviationReason</td>
+                                    <td>@record.DeliverableActualCompletedDate</td>
+                                    <td>@record.MilestoneAchievedDate</td>
+                                    <td>@record.Status</td>
+                                    <td>@record.Remarks</td>
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</body>
+</html>
