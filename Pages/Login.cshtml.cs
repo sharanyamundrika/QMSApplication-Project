@@ -67,6 +67,7 @@ namespace QMSApplication.Pages
                 int usernameColumn = 0;
                 int passwordColumn = 0;
                 int firstNameColumn = 0;
+                int roleColumn = 0;
 
                 // Find columns using the Excel headers
                 foreach (var cell in firstRow.CellsUsed())
@@ -92,6 +93,13 @@ namespace QMSApplication.Pages
                         StringComparison.OrdinalIgnoreCase))
                     {
                         firstNameColumn = cell.Address.ColumnNumber;
+                    }
+
+                    if (header.Equals(
+                        "Role",
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        roleColumn = cell.Address.ColumnNumber;
                     }
                 }
 
@@ -132,10 +140,29 @@ namespace QMSApplication.Pages
                             }
                         }
 
+                        // Get user role
+                        string role = "User";
+
+                        if (roleColumn != 0)
+                        {
+                            string excelRole =
+                                row.Cell(roleColumn).GetString().Trim();
+
+                            if (!string.IsNullOrWhiteSpace(excelRole))
+                            {
+                                role = excelRole;
+                            }
+                        }
+
                         // Store logged-in user in session
                         HttpContext.Session.SetString(
                             "LoggedInUser",
                             firstName);
+
+                        // Store user role in session
+                        HttpContext.Session.SetString(
+                            "UserRole",
+                            role);
 
                         // Login successful
                         return RedirectToPage("/Welcome");

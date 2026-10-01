@@ -1,0 +1,82 @@
+﻿@page
+@model QMSApplication.Pages.GuidelinesModel
+
+@{
+    ViewData["Title"] = "Guidelines";
+    Layout = "_PortalLayout";
+}
+
+<div class="guidelines-page">
+
+    <div class="page-header">
+        <h1>Guidelines</h1>
+        <p>Quality and process guidance for using the portal.</p>
+    </div>
+
+    @if (Model.Guidelines.Count == 0)
+    {
+        <div class="empty-message">
+            No guidelines are currently available.
+        </div>
+    }
+    else
+    {
+        @foreach (var guideline in Model.Guidelines)
+        {
+            <div class="guideline-card">
+                <h2>@guideline.Title</h2>
+
+                <div class="guideline-content">
+                    @Html.Raw(guideline.Content)
+                </div>
+            </div>
+        }
+    }
+
+</div>
+
+<style>
+    .guidelines-page {
+        padding: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .page-header h1 {
+        margin-bottom: 8px;
+    }
+
+    .page-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .guideline-card {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .guideline-card h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .guideline-content {
+        line-height: 1.7;
+        white-space: normal;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        color: #666;
+    }
+</style>

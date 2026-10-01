@@ -1,0 +1,194 @@
+﻿@page
+@model QMSApplication.Pages.NotificationsModel
+
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "_PortalLayout";
+}
+
+<div class="notifications-page">
+
+    <div class="page-header">
+        <h1>Notifications</h1>
+        <p>View and acknowledge portal notifications.</p>
+    </div>
+
+    @if (Model.Notifications.Count == 0)
+    {
+        <div class="empty-message">
+            No notifications are currently available.
+        </div>
+    }
+    else
+    {
+        @foreach (var notification in Model.Notifications)
+        {
+            <div class="notification-card
+                @(notification.IsMandatory ? "mandatory" : "")">
+
+                <div class="notification-header">
+                    <h2>@notification.Title</h2>
+
+                    <span class="priority">
+                        @notification.Priority
+                    </span>
+                </div>
+
+                <div class="notification-message">
+                    @notification.Message
+                </div>
+
+                <div class="notification-details">
+                    <span>
+                        Date:
+                        @notification.NotificationDateUtc.ToLocalTime().ToString("dd-MMM-yyyy HH:mm")
+                    </span>
+
+                    <span>
+                        @(notification.IsRead ? "Read" : "Unread")
+                    </span>
+
+                    @if (notification.IsMandatory)
+                    {
+                        <span class="mandatory-label">
+                            Mandatory Read
+                        </span>
+                    }
+                </div>
+
+                @if (notification.IsMandatory &&
+                     !notification.IsAcknowledged)
+                {
+                    <div class="acknowledgement-warning">
+                        This notification must be acknowledged.
+                    </div>
+
+                    <form method="post">
+                        <input type="hidden"
+                               name="id"
+                               value="@notification.Id" />
+
+                        <button type="submit"
+                                class="acknowledge-button">
+                            Acknowledge
+                        </button>
+                    </form>
+                }
+                else if (notification.IsAcknowledged)
+                {
+                    <div class="acknowledged">
+                        ✓ Acknowledged
+                    </div>
+                }
+
+            </div>
+        }
+    }
+
+</div>
+
+<style>
+    .notifications-page {
+        padding: 30px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+        .page-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: #666;
+            margin: 0;
+        }
+
+    .notification-card {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+        .notification-card.mandatory {
+            border-left: 5px solid #d9534f;
+        }
+
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+        .notification-header h2 {
+            margin: 0;
+        }
+
+    .priority {
+        background-color: #123a72;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .notification-message {
+        margin-top: 15px;
+        line-height: 1.6;
+    }
+
+    .notification-details {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .mandatory-label {
+        color: #d9534f;
+        font-weight: bold;
+    }
+
+    .acknowledgement-warning {
+        margin-top: 18px;
+        padding: 12px;
+        background-color: #fff3cd;
+        color: #856404;
+        border-radius: 5px;
+    }
+
+    .acknowledge-button {
+        margin-top: 12px;
+        background-color: #123a72;
+        color: white;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .acknowledge-button:hover {
+            background-color: #1d4f91;
+        }
+
+    .acknowledged {
+        margin-top: 18px;
+        color: green;
+        font-weight: bold;
+    }
+
+    .empty-message {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        color: #666;
+    }
+</style>

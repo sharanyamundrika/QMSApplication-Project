@@ -1,0 +1,112 @@
+﻿@page
+@model QMSApplication.Pages.NotificationAdminModel
+
+@{
+    ViewData["Title"] = "Notification Management";
+    Layout = "_PortalLayout";
+}
+
+<div style="padding: 30px;">
+
+    <h1>Notification Management</h1>
+
+    <p>
+        Admin and Manager notification management.
+    </p>
+    <a href="/NotificationCreate"
+       style="display:inline-block;
+        padding:10px 16px;
+        background:#1f4e79;
+        color:white;
+        text-decoration:none;
+        border-radius:5px;
+        margin-bottom:20px;">
+        + Create Notification
+    </a>
+    <hr />
+
+    @if (Model.Notifications.Count == 0)
+    {
+        <p>No notifications found.</p>
+    }
+    else
+    {
+        <table style="width:100%; border-collapse:collapse;">
+
+            <thead>
+                <tr>
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Title
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Priority
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Mandatory
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Published
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Read
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Acknowledged
+                    </th>
+
+                    <th style="border:1px solid #ddd; padding:10px;">
+                        Date
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var notification in Model.Notifications)
+                {
+                    <tr>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @notification.Title
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @notification.Priority
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @(notification.IsMandatory ? "Yes" : "No")
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @(notification.IsPublished ? "Yes" : "No")
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @(notification.IsRead ? "Read" : "Unread")
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @(notification.IsAcknowledged
+                                ? "Acknowledged"
+                                : "Not Acknowledged")
+                        </td>
+
+                        <td style="border:1px solid #ddd; padding:10px;">
+                            @(notification.NotificationDateUtc.ToLocalTime().ToString("dd-MMM-yyyy HH:mm"))
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+</div>

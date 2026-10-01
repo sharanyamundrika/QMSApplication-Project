@@ -1,0 +1,172 @@
+﻿@page
+@model QMSApplication.Pages.MDViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View M & D Record</title>
+
+    <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f9;
+            }
+
+            .header {
+                background-color: #123a72;
+                color: white;
+                padding: 18px 25px;
+            }
+
+                .header h1 {
+                    margin: 0;
+                }
+
+            .content {
+                padding: 25px;
+            }
+
+            .card {
+                background-color: white;
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .field {
+                margin-bottom: 18px;
+            }
+
+            .label {
+                font-weight: bold;
+                color: #123a72;
+                margin-bottom: 5px;
+            }
+
+            .value {
+                padding: 10px;
+                background-color: #f7f7f7;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .back-button {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 18px;
+                background-color: #123a72;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>View M & D Record</h1>
+    </div>
+
+    <div class="content">
+
+        <div class="card">
+
+            @if (Model.Record == null)
+            {
+                <p>Record not found.</p>
+            }
+            else
+            {
+                <div class="field">
+                    <div class="label">Record ID</div>
+                    <div class="value">@Model.Record.RecordID</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">S.No</div>
+                    <div class="value">@Model.Record.SNo</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Milestone Name</div>
+                    <div class="value">@Model.Record.MilestoneName</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Deliverable Name</div>
+                    <div class="value">@Model.Record.DeliverableName</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Deliverable Type</div>
+                    <div class="value">@Model.Record.DeliverableType</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Milestone Target Date</div>
+                    <div class="value">@Model.Record.MilestoneTargetDate</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Deliverable Target Date</div>
+                    <div class="value">@Model.Record.DeliverableTargetDate</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Assigned To</div>
+                    <div class="value">@Model.Record.AssignedTo</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Any Schedule Deviation</div>
+                    <div class="value">@Model.Record.ScheduleDeviation</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Deliverable at Which Activity</div>
+                    <div class="value">@Model.Record.DeliverableActivity</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Reason for Schedule Deviation</div>
+                    <div class="value">@Model.Record.DeviationReason</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Deliverable Actual Completed Date</div>
+                    <div class="value">@Model.Record.DeliverableActualCompletedDate</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Milestone Achieved Date</div>
+                    <div class="value">@Model.Record.MilestoneAchievedDate</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Status</div>
+                    <div class="value">@Model.Record.Status</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">Remarks</div>
+                    <div class="value">@Model.Record.Remarks</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">UGs</div>
+                    <div class="value">@Model.Record.UGs</div>
+                </div>
+
+                <a class="back-button" href="/MD">
+                    Back to M & D
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -17,5 +17,8 @@
         public string? MilestoneAchievedDate { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
+
+        // UGs column from the source Excel
+        public string? UGs { get; set; }
     }
 }

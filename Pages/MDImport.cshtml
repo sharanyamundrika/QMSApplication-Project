@@ -1,0 +1,29 @@
+﻿@page
+@model QMSApplication.Pages.MDImportModel
+
+@{
+    ViewData["Title"] = "M&D Import";
+}
+
+<h2>M&D Excel Import</h2>
+
+<p>
+    This will import the M&D records from:
+</p>
+
+<p>
+    <strong>C:\QMSData\MilestoneDeliverables.xlsx</strong>
+</p>
+
+<form method="post">
+    <button type="submit">
+        Import M&D Records to MySQL
+    </button>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+    <p style="margin-top:20px; font-weight:bold;">
+        @Model.Message
+    </p>
+}

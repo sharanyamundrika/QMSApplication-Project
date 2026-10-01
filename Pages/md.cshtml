@@ -1,156 +1,589 @@
 ﻿@page
 @model QMSApplication.Pages.MDModel
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>M & D - QMS</title>
+<style>
+    .md-page {
+        min-width: 1024px;
+        width: 100%;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
 
-    <style>
-            * {
-                box-sizing: border-box;
-            }
+    .md-title {
+        background-color: #1f3c88;
+        color: white;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
 
-            body {
-                margin: 0;
-                font-family: Arial, sans-serif;
-                background-color: #f4f6f9;
-            }
+        .md-title h1 {
+            margin: 0;
+            font-size: 24px;
+        }
 
-            .header {
-                background-color: #123a72;
-                color: white;
-                padding: 20px 30px;
-            }
+    /* =========================
+           SEARCH AND FILTERS
+           ========================= */
 
-                .header h1 {
-                    margin: 0;
-                }
+    .search-filter-box {
+        background-color: white;
+        border: 1px solid #d5d5d5;
+        padding: 18px;
+        margin-bottom: 20px;
+    }
 
-            .content {
-                padding: 30px;
-            }
+    .search-filter-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1f3c88;
+        margin-bottom: 15px;
+    }
 
-            .card {
-                background-color: white;
-                padding: 25px;
-                border-radius: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
+    .search-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
 
-            .table-container {
-                overflow-x: auto;
-                margin-top: 20px;
-            }
+    .search-input {
+        width: 450px;
+        max-width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #bdbdbd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                min-width: 1800px;
-            }
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
 
-            th {
-                background-color: #123a72;
-                color: white;
-                padding: 12px;
-                text-align: left;
-                white-space: nowrap;
-            }
+    .filter-select {
+        min-width: 190px;
+        padding: 9px 10px;
+        border: 1px solid #bdbdbd;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 14px;
+    }
 
-            td {
-                padding: 10px;
-                border-bottom: 1px solid #ddd;
-                white-space: nowrap;
-            }
+    .button {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+    }
 
-            tr:hover {
-                background-color: #f5f5f5;
-            }
+    .apply-button {
+        background-color: #1f3c88;
+        color: white;
+    }
 
-            .no-records {
-                padding: 20px;
-                color: #666;
-            }
-    </style>
-</head>
+        .apply-button:hover {
+            background-color: #162d69;
+        }
 
-<body>
+    .clear-button {
+        background-color: #777777;
+        color: white;
+    }
 
-    <div class="header">
-        <h1>Milestones & Delivery</h1>
+        .clear-button:hover {
+            background-color: #555555;
+        }
+
+    /* =========================
+           TABLE
+           ========================= */
+
+    .md-table-container {
+        width: 100%;
+        max-height: 70vh;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #cccccc;
+        background-color: white;
+    }
+
+    .md-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: max-content;
+        min-width: 2300px;
+    }
+
+        .md-table th,
+        .md-table td {
+            padding: 10px 12px;
+            border-right: 1px solid #dddddd;
+            border-bottom: 1px solid #dddddd;
+            text-align: left;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+
+        /* Sticky table header */
+        .md-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #1f3c88;
+            color: white;
+            font-weight: bold;
+        }
+
+        .md-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .md-table tbody tr:hover {
+            background-color: #eef3ff;
+        }
+
+        /* Sticky Record ID */
+        .md-table th:nth-child(1),
+        .md-table td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            z-index: 6;
+            background-color: white;
+            min-width: 110px;
+        }
+
+        /* Sticky S.No */
+        .md-table th:nth-child(2),
+        .md-table td:nth-child(2) {
+            position: sticky;
+            left: 110px;
+            z-index: 6;
+            background-color: white;
+            min-width: 70px;
+        }
+
+        /* Sticky header cells */
+        .md-table thead th:nth-child(1),
+        .md-table thead th:nth-child(2) {
+            z-index: 20;
+            background-color: #1f3c88;
+        }
+
+        .md-table tbody tr:nth-child(even) td:nth-child(1),
+        .md-table tbody tr:nth-child(even) td:nth-child(2) {
+            background-color: #f8f9fa;
+        }
+
+    .record-id {
+        font-weight: bold;
+    }
+
+    /* Actions */
+    .action-link {
+        display: inline-block;
+        margin-right: 10px;
+        color: #1f3c88;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+
+    /* Red Overdue indicator */
+    .overdue-indicator {
+        color: red;
+        font-weight: bold;
+    }
+
+    .no-records {
+        padding: 20px;
+        color: #666666;
+    }
+</style>
+
+<div class="md-page">
+
+    <!-- PAGE TITLE -->
+
+    <div class="md-title">
+        <h1>Milestones &amp; Deliverables</h1>
     </div>
 
-    <div class="content">
 
-        <div class="card">
+    <!-- SEARCH AND FILTERS -->
 
-            <h2>M & D Records</h2>
+    <form method="get">
 
-            @if (Model.Records.Count == 0)
-            {
-                <div class="no-records">
-                    No M & D records found.
-                </div>
-            }
-            else
-            {
-                <div class="table-container">
+        <div class="search-filter-box">
 
-                    <table>
+            <div class="search-filter-title">
+                Search and Filters
+            </div>
 
-                        <thead>
-                            <tr>
-                                <th>Record ID</th>
-                                <th>S.No</th>
-                                <th>Milestone Name</th>
-                                <th>Deliverable Name</th>
-                                <th>Deliverable Type</th>
-                                <th>Milestone Target Date</th>
-                                <th>Deliverable Target Date</th>
-                                <th>Assigned To</th>
-                                <th>Any Schedule Deviation</th>
-                                <th>Deliverable at Which Activity</th>
-                                <th>Reason for Schedule Deviation</th>
-                                <th>Deliverable Actual Completed Date</th>
-                                <th>Milestone Achieved Date</th>
-                                <th>Status</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
+            <!-- TEXT SEARCH -->
 
-                        <tbody>
+            <div class="search-row">
 
-                            @foreach (var record in Model.Records)
-                            {
-                                <tr>
-                                    <td>@record.RecordID</td>
-                                    <td>@record.SNo</td>
-                                    <td>@record.MilestoneName</td>
-                                    <td>@record.DeliverableName</td>
-                                    <td>@record.DeliverableType</td>
-                                    <td>@record.MilestoneTargetDate</td>
-                                    <td>@record.DeliverableTargetDate</td>
-                                    <td>@record.AssignedTo</td>
-                                    <td>@record.ScheduleDeviation</td>
-                                    <td>@record.DeliverableActivity</td>
-                                    <td>@record.DeviationReason</td>
-                                    <td>@record.DeliverableActualCompletedDate</td>
-                                    <td>@record.MilestoneAchievedDate</td>
-                                    <td>@record.Status</td>
-                                    <td>@record.Remarks</td>
-                                </tr>
-                            }
+                <input type="text"
+                       name="Search"
+                       value="@Model.Search"
+                       class="search-input"
+                       placeholder="Search Milestone Name, Deliverable Name, Assigned To, or Status" />
 
-                        </tbody>
+                <button type="submit"
+                        class="button apply-button">
+                    Search / Apply
+                </button>
 
-                    </table>
+                <a asp-page="/MD"
+                   class="button clear-button">
+                    Clear
+                </a>
 
-                </div>
-            }
+            </div>
+
+
+            <!-- FILTERS -->
+
+            <div class="filter-row">
+
+                <!-- Milestone Name -->
+
+                <select name="MilestoneFilter"
+                        class="filter-select">
+
+                    <option value="">All Milestone Names</option>
+
+                    @foreach (var item in Model.MilestoneNames)
+                    {
+                        if (string.Equals(
+                            item,
+                            Model.MilestoneFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@item" selected>
+                                @item
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item">
+                                @item
+                            </option>
+                        }
+                    }
+
+                </select>
+
+
+                <!-- Assigned To -->
+
+                <select name="AssignedToFilter"
+                        class="filter-select">
+
+                    <option value="">All Assigned To</option>
+
+                    @foreach (var item in Model.AssignedToNames)
+                    {
+                        if (string.Equals(
+                            item,
+                            Model.AssignedToFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@item" selected>
+                                @item
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item">
+                                @item
+                            </option>
+                        }
+                    }
+
+                </select>
+
+
+                <!-- Status -->
+
+                <select name="StatusFilter"
+                        class="filter-select">
+
+                    <option value="">All Statuses</option>
+
+                    @foreach (var item in Model.Statuses)
+                    {
+                        if (string.Equals(
+                            item,
+                            Model.StatusFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@item" selected>
+                                @item
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item">
+                                @item
+                            </option>
+                        }
+                    }
+
+                </select>
+
+
+                <!-- Deliverable Type -->
+
+                <select name="DeliverableTypeFilter"
+                        class="filter-select">
+
+                    <option value="">All Deliverable Types</option>
+
+                    @foreach (var item in Model.DeliverableTypes)
+                    {
+                        if (string.Equals(
+                            item,
+                            Model.DeliverableTypeFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@item" selected>
+                                @item
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item">
+                                @item
+                            </option>
+                        }
+                    }
+
+                </select>
+
+
+                <!-- Schedule Deviation -->
+
+                <select name="ScheduleDeviationFilter"
+                        class="filter-select">
+
+                    <option value="">All Schedule Deviations</option>
+
+                    @foreach (var item in Model.ScheduleDeviations)
+                    {
+                        if (string.Equals(
+                            item,
+                            Model.ScheduleDeviationFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <option value="@item" selected>
+                                @item
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item">
+                                @item
+                            </option>
+                        }
+                    }
+
+                </select>
+
+            </div>
 
         </div>
 
-    </div>
+    </form>
 
-</body>
-</html>
+
+    <!-- M & D TABLE -->
+    @if (Model.Records != null && Model.Records.Count > 0)
+    {
+        <div class="md-table-container">
+
+            <table class="md-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Record ID</th>
+                        <th>S.No</th>
+                        <th>Milestone Name</th>
+                        <th>Deliverable Name</th>
+                        <th>Deliverable Type</th>
+                        <th>Milestone Target Date</th>
+                        <th>Deliverable Target Date</th>
+                        <th>Assigned To</th>
+                        <th>Any Schedule Deviation</th>
+                        <th>Deliverable at Which Activity</th>
+                        <th>Reason for Schedule Deviation</th>
+                        <th>Deliverable Actual Completed Date</th>
+                        <th>Milestone Achieved Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>UGs</th>
+                        <th>Actions</th>
+                        <th>Due Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var record in Model.Records)
+                    {
+                        <tr>
+
+                            <td class="record-id">
+                                @record.RecordID
+                            </td>
+
+                            <td>
+                                @record.SNo
+                            </td>
+
+                            <td>
+                                @record.MilestoneName
+                            </td>
+
+                            <td>
+                                @record.DeliverableName
+                            </td>
+
+                            <td>
+                                @record.DeliverableType
+                            </td>
+
+                            <td>
+                                @record.MilestoneTargetDate
+                            </td>
+
+                            <td>
+                                @record.DeliverableTargetDate
+                            </td>
+
+                            <td>
+                                @record.AssignedTo
+                            </td>
+
+                            <td>
+                                @record.ScheduleDeviation
+                            </td>
+
+                            <td>
+                                @record.DeliverableActivity
+                            </td>
+
+                            <td>
+                                @record.DeviationReason
+                            </td>
+
+                            <td>
+                                @record.DeliverableActualCompletedDate
+                            </td>
+
+                            <td>
+                                @record.MilestoneAchievedDate
+                            </td>
+
+                            <td>
+                                @record.Status
+                            </td>
+
+                            <td>
+                                @record.Remarks
+                            </td>
+
+                            <td>
+                                @record.UGs
+                            </td>
+
+                            <td>
+
+                                <a class="action-link"
+                                   asp-page="/MDView"
+                                   asp-route-id="@record.RecordID">
+                                    View
+                                </a>
+
+                                <a class="action-link"
+                                   asp-page="/MDEdit"
+                                   asp-route-id="@record.RecordID">
+                                    Edit
+                                </a>
+
+                            </td>
+
+                            <td>
+
+                                @{
+                                    bool isOverdue = false;
+
+                                    if (!string.IsNullOrWhiteSpace(
+                                        record.DeliverableTargetDate))
+                                    {
+                                        string[] formats =
+                                        {
+                                            "dd-MMM-yyyy",
+                                            "d-MMM-yyyy",
+                                            "dd/MM/yyyy",
+                                            "d/M/yyyy",
+                                            "MM/dd/yyyy",
+                                            "M/d/yyyy",
+                                            "dd-MM-yyyy",
+                                            "d-MM-yyyy"
+                                        };
+
+                                        if (DateTime.TryParseExact(
+                                            record.DeliverableTargetDate.Trim(),
+                                            formats,
+                                            System.Globalization.CultureInfo.InvariantCulture,
+                                            System.Globalization.DateTimeStyles.AllowWhiteSpaces,
+                                            out DateTime targetDate))
+                                        {
+                                            isOverdue =
+                                                targetDate.Date < DateTime.Today &&
+                                                !string.Equals(
+                                                    record.Status?.Trim(),
+                                                    "Completed",
+                                                    StringComparison.OrdinalIgnoreCase);
+                                        }
+                                    }
+                                }
+
+                                @if (isOverdue)
+                                {
+                                    <span class="overdue-indicator">
+                                        Overdue
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    else
+    {
+        <div class="no-records">
+            No M &amp; D records found for the selected search/filter criteria.
+        </div>
+    }
+
+</div>

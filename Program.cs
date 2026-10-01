@@ -1,7 +1,17 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using QMSApplication.Models;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<QMSPortalDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("QMSPortalDb"),
+        ServerVersion.AutoDetect(
+            builder.Configuration.GetConnectionString("QMSPortalDb"))));
+builder.Services.AddScoped<QMSApplication.Data.MDExcelImporter>();
 // Add Razor Pages
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<QMSApplication.Filters.MandatoryNotificationFilter>();
 
 // Add Session
 builder.Services.AddDistributedMemoryCache();
