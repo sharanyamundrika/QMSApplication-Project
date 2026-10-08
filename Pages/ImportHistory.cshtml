@@ -1,0 +1,202 @@
+﻿@page
+@model QMSApplication.Pages.ImportHistoryModel
+
+@{
+    ViewData["Title"] = "Import History";
+    Layout = "_PortalLayout";
+}
+
+<style>
+
+    .import-history-page {
+        padding: 30px;
+    }
+
+    .import-history-header {
+        margin-bottom: 25px;
+    }
+
+        .import-history-header h1 {
+            color: #123a72;
+            margin-bottom: 8px;
+        }
+
+        .import-history-header p {
+            color: #666;
+            margin: 0;
+        }
+
+    .table-section {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow-x: auto;
+    }
+
+    .import-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+        .import-table th {
+            background-color: #123a72;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .import-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .import-table tr:hover {
+            background-color: #f5f8fc;
+        }
+
+    .status-completed {
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .status-started {
+        color: #ef6c00;
+        font-weight: bold;
+    }
+
+    .exception-count {
+        font-weight: bold;
+    }
+
+</style>
+
+<div class="import-history-page">
+
+    <div class="import-history-header">
+
+        <h1>Import History</h1>
+
+        <p>
+            Import batches and data-quality information.
+        </p>
+
+    </div>
+
+    <div class="table-section">
+
+        @if (Model.ImportBatches.Count == 0)
+        {
+            <p>
+                No import batches have been recorded yet.
+            </p>
+        }
+        else
+        {
+            <table class="import-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Batch ID
+                        </th>
+
+                        <th>
+                            Source Workbook
+                        </th>
+
+                        <th>
+                            Imported Date/Time
+                        </th>
+
+                        <th>
+                            Imported By
+                        </th>
+
+                        <th>
+                            Total Records
+                        </th>
+
+                        <th>
+                            Successful Records
+                        </th>
+
+                        <th>
+                            Exceptions
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var batch in Model.ImportBatches)
+                    {
+                        <tr>
+
+                            <td>
+                                @batch.Id
+                            </td>
+
+                            <td>
+                                @batch.SourceFileName
+                            </td>
+
+                            <td>
+                                @batch.ImportedAtUtc.ToLocalTime()
+                            </td>
+
+                            <td>
+                                @batch.ImportedBy
+                            </td>
+
+                            <td>
+                                @batch.TotalRecords
+                            </td>
+
+                            <td>
+                                @batch.SuccessfulRecords
+                            </td>
+
+                            <td class="exception-count">
+                                @batch.ExceptionCount
+                            </td>
+
+                            <td>
+
+                                @if (batch.Status == "Completed")
+                                {
+                                    <span class="status-completed">
+                                        @batch.Status
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-started">
+                                        @batch.Status
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+
+    </div>
+
+</div>

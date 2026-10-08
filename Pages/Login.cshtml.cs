@@ -155,6 +155,12 @@ namespace QMSApplication.Pages
                         }
 
                         // Store logged-in user in session
+                        
+                        HttpContext.Session.SetString(
+                            "Username",
+                            Username.Trim());
+
+                        // Store logged-in user's first name in session
                         HttpContext.Session.SetString(
                             "LoggedInUser",
                             firstName);

@@ -20,5 +20,7 @@
 
         // UGs column from the source Excel
         public string? UGs { get; set; }
+        public Guid ConcurrencyToken { get; set; }
+        public bool IsOverdue { get; set; }
     }
 }

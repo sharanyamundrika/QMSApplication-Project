@@ -34,8 +34,7 @@ namespace QMSApplication.Data
 
             using var workbook = new XLWorkbook(_excelFilePath);
 
-            var worksheet = workbook.Worksheets
-                .FirstOrDefault();
+            var worksheet = workbook.Worksheets.FirstOrDefault();
 
             if (worksheet == null)
             {
@@ -72,17 +71,46 @@ namespace QMSApplication.Data
                     "M&D header row could not be found.");
             }
 
+            /*
+             * Create one ImportBatch for this import.
+             */
+            var importBatch = new ImportBatch
+            {
+                SourceFileName =
+                    Path.GetFileName(_excelFilePath),
+
+                ImportedAtUtc =
+                    DateTime.UtcNow,
+
+                ImportedBy =
+                    "System",
+
+                Status =
+                    "Started"
+            };
+
+            _db.ImportBatches.Add(importBatch);
+
+            await _db.SaveChangesAsync();
+
             int generatedRecordNumber = 0;
+            int successfulRecords = 0;
+            int exceptionCount = 0;
 
             foreach (var row in worksheet.RowsUsed()
                          .Where(r => r.RowNumber() > headerRow))
             {
                 bool hasData =
-                    !string.IsNullOrWhiteSpace(row.Cell(1).GetString()) ||
-                    !string.IsNullOrWhiteSpace(row.Cell(2).GetString()) ||
-                    !string.IsNullOrWhiteSpace(row.Cell(3).GetString()) ||
-                    !string.IsNullOrWhiteSpace(row.Cell(7).GetString()) ||
-                    !string.IsNullOrWhiteSpace(row.Cell(13).GetString());
+                    !string.IsNullOrWhiteSpace(
+                        row.Cell(1).GetString()) ||
+                    !string.IsNullOrWhiteSpace(
+                        row.Cell(2).GetString()) ||
+                    !string.IsNullOrWhiteSpace(
+                        row.Cell(3).GetString()) ||
+                    !string.IsNullOrWhiteSpace(
+                        row.Cell(7).GetString()) ||
+                    !string.IsNullOrWhiteSpace(
+                        row.Cell(13).GetString());
 
                 if (!hasData)
                 {
@@ -91,8 +119,30 @@ namespace QMSApplication.Data
 
                 generatedRecordNumber++;
 
-                string status = row.Cell(13).GetString().Trim();
+                string recordId =
+                    $"MD-{generatedRecordNumber:0000}";
 
+                string sourceSNo =
+                    row.Cell(1).GetString().Trim();
+
+                string milestoneName =
+                    row.Cell(2).GetString().Trim();
+
+                string deliverableName =
+                    row.Cell(3).GetString().Trim();
+
+                string deliverableType =
+                    row.Cell(4).GetString().Trim();
+
+                string assignedTo =
+                    row.Cell(7).GetString().Trim();
+
+                string status =
+                    row.Cell(13).GetString().Trim();
+
+                /*
+                 * Map source status spelling.
+                 */
                 if (status.Equals(
                         "Deffered",
                         StringComparison.OrdinalIgnoreCase) ||
@@ -100,9 +150,21 @@ namespace QMSApplication.Data
                         "Defferred",
                         StringComparison.OrdinalIgnoreCase))
                 {
+                    AddImportException(
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Status",
+                        row.Cell(13).GetString(),
+                        "Source status 'Deffered'/'Defferred' was mapped to 'Deferred'.",
+                        ref exceptionCount);
+
                     status = "Deferred";
                 }
 
+                /*
+                 * Schedule deviation.
+                 */
                 string scheduleDeviation =
                     row.Cell(8).GetString().Trim();
 
@@ -119,92 +181,260 @@ namespace QMSApplication.Data
                     scheduleDeviation = "No";
                 }
 
+                /*
+                 * Parse dates and record exceptions when
+                 * a non-empty source value cannot be parsed.
+                 */
                 var milestoneTarget =
-                    ParseDate(row.Cell(5));
+                    ParseDateWithException(
+                        row.Cell(5),
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Milestone Target Date",
+                        ref exceptionCount);
 
                 var deliverableTarget =
-                    ParseDate(row.Cell(6));
+                    ParseDateWithException(
+                        row.Cell(6),
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Deliverable Target Date",
+                        ref exceptionCount);
 
                 var actualCompleted =
-                    ParseDate(row.Cell(11));
+                    ParseDateWithException(
+                        row.Cell(11),
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Deliverable Actual Completed Date",
+                        ref exceptionCount);
 
                 var milestoneAchieved =
-                    ParseDate(row.Cell(12));
+                    ParseDateWithException(
+                        row.Cell(12),
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Milestone Achieved Date",
+                        ref exceptionCount);
 
+                /*
+                 * Record blank required fields as data-quality
+                 * exceptions. The record is still imported so
+                 * source information is not silently lost.
+                 */
+                if (string.IsNullOrWhiteSpace(milestoneName))
+                {
+                    AddImportException(
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Milestone Name",
+                        row.Cell(2).GetString(),
+                        "Required field is blank.",
+                        ref exceptionCount);
+                }
+
+                if (string.IsNullOrWhiteSpace(deliverableName))
+                {
+                    AddImportException(
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Deliverable Name",
+                        row.Cell(3).GetString(),
+                        "Required field is blank.",
+                        ref exceptionCount);
+                }
+
+                if (string.IsNullOrWhiteSpace(deliverableType))
+                {
+                    AddImportException(
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Deliverable Type",
+                        row.Cell(4).GetString(),
+                        "Required field is blank.",
+                        ref exceptionCount);
+                }
+
+                if (string.IsNullOrWhiteSpace(assignedTo) ||
+                    IsPlaceholder(assignedTo))
+                {
+                    AddImportException(
+                        importBatch.Id,
+                        recordId,
+                        sourceSNo,
+                        "Assigned To",
+                        row.Cell(7).GetString(),
+                        "Assigned To is blank or contains a placeholder.",
+                        ref exceptionCount);
+                }
+
+                /*
+                 * Preserve source values in the Source fields,
+                 * while storing blank/NA/- as NULL where possible.
+                 */
                 var record = new MDEntity
                 {
                     RecordID =
-                        $"MD-{generatedRecordNumber:0000}",
+                        recordId,
 
                     SNo =
-                        row.Cell(1).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(1).GetString()),
 
                     MilestoneName =
-                        row.Cell(2).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(2).GetString()),
 
                     DeliverableName =
-                        row.Cell(3).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(3).GetString()),
 
                     DeliverableType =
-                        row.Cell(4).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(4).GetString()),
 
                     MilestoneTargetDate =
                         milestoneTarget,
 
                     MilestoneTargetDateSource =
-                        row.Cell(5).GetString(),
+                        NullIfEmpty(
+                            row.Cell(5).GetString()),
 
                     DeliverableTargetDate =
                         deliverableTarget,
 
                     DeliverableTargetDateSource =
-                        row.Cell(6).GetString(),
+                        NullIfEmpty(
+                            row.Cell(6).GetString()),
 
                     AssignedTo =
-                        row.Cell(7).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(7).GetString()),
 
                     ScheduleDeviation =
-                        scheduleDeviation,
+                        NullIfPlaceholder(
+                            scheduleDeviation),
 
                     DeliverableActivity =
-                        row.Cell(9).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(9).GetString()),
 
                     DeviationReason =
-                        row.Cell(10).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(10).GetString()),
 
                     DeliverableActualCompletedDate =
                         actualCompleted,
 
                     DeliverableActualCompletedDateSource =
-                        row.Cell(11).GetString(),
+                        NullIfEmpty(
+                            row.Cell(11).GetString()),
 
                     MilestoneAchievedDate =
                         milestoneAchieved,
 
                     MilestoneAchievedDateSource =
-                        row.Cell(12).GetString(),
+                        NullIfEmpty(
+                            row.Cell(12).GetString()),
 
                     Status =
-                        status,
+                        NullIfPlaceholder(
+                            status),
 
                     Remarks =
-                        row.Cell(14).GetString(),
+                        NullIfPlaceholder(
+                            row.Cell(14).GetString()),
 
                     UGs =
-                        row.Cell(16).GetString()
+                        NullIfPlaceholder(
+                            row.Cell(16).GetString())
                 };
 
                 _db.MDRecords.Add(record);
+
+                successfulRecords++;
             }
 
-            int importedCount =
-                await _db.SaveChangesAsync();
+            /*
+             * Save imported M&D records.
+             */
+            await _db.SaveChangesAsync();
 
-            return importedCount;
+            /*
+             * Complete the ImportBatch.
+             */
+            importBatch.TotalRecords =
+                generatedRecordNumber;
+
+            importBatch.SuccessfulRecords =
+                successfulRecords;
+
+            importBatch.ExceptionCount =
+                exceptionCount;
+
+            importBatch.Status =
+                "Completed";
+
+            await _db.SaveChangesAsync();
+
+            return successfulRecords;
         }
 
-        private static DateOnly? ParseDate(
-            IXLCell cell)
+        private void AddImportException(
+            long importBatchId,
+            string recordId,
+            string sourceSNo,
+            string fieldName,
+            string sourceValue,
+            string reason,
+            ref int exceptionCount)
+        {
+            var exception = new ImportException
+            {
+                ImportBatchId =
+                    importBatchId,
+
+                RecordID =
+                    recordId,
+
+                SourceSNo =
+                    NullIfEmpty(sourceSNo),
+
+                FieldName =
+                    fieldName,
+
+                SourceValue =
+                    NullIfEmpty(sourceValue),
+
+                ExceptionReason =
+                    reason,
+
+                IsReviewed =
+                    false,
+
+                CreatedAtUtc =
+                    DateTime.UtcNow
+            };
+
+            _db.ImportExceptions.Add(exception);
+
+            exceptionCount++;
+        }
+
+        private DateOnly? ParseDateWithException(
+            IXLCell cell,
+            long importBatchId,
+            string recordId,
+            string sourceSNo,
+            string fieldName,
+            ref int exceptionCount)
         {
             string value =
                 cell.GetString().Trim();
@@ -215,13 +445,17 @@ namespace QMSApplication.Data
                     StringComparison.OrdinalIgnoreCase) ||
                 value == "-")
             {
+                /*
+                 * Blank, NA and - become NULL.
+                 */
                 return null;
             }
 
             if (cell.DataType ==
                 XLDataType.DateTime)
             {
-                return DateOnly.FromDateTime(cell.GetDateTime());
+                return DateOnly.FromDateTime(
+                    cell.GetDateTime());
             }
 
             string[] formats =
@@ -233,7 +467,9 @@ namespace QMSApplication.Data
                 "dd-MM-yyyy",
                 "d-MM-yyyy",
                 "MM/dd/yyyy",
-                "M/d/yyyy"
+                "M/d/yyyy",
+                "dd-MMM-yy",
+                "d-MMM-yy"
             };
 
             if (DateTime.TryParseExact(
@@ -255,7 +491,67 @@ namespace QMSApplication.Data
                 return DateOnly.FromDateTime(parsed);
             }
 
+            AddImportException(
+                importBatchId,
+                recordId,
+                sourceSNo,
+                fieldName,
+                value,
+                "Source date could not be parsed. Stored as NULL.",
+                ref exceptionCount);
+
             return null;
+        }
+
+        private static bool IsPlaceholder(
+            string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return true;
+            }
+
+            string trimmed =
+                value.Trim();
+
+            return trimmed.Equals(
+                       "NA",
+                       StringComparison.OrdinalIgnoreCase)
+                   ||
+                   trimmed == "-";
+        }
+
+        private static string? NullIfPlaceholder(
+            string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            string trimmed =
+                value.Trim();
+
+            if (trimmed.Equals(
+                    "NA",
+                    StringComparison.OrdinalIgnoreCase) ||
+                trimmed == "-")
+            {
+                return null;
+            }
+
+            return trimmed;
+        }
+
+        private static string? NullIfEmpty(
+            string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            return value.Trim();
         }
     }
 }

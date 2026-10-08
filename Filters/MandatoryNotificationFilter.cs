@@ -26,26 +26,68 @@ namespace QMSApplication.Filters
         {
             var pagePath = context.HttpContext.Request.Path.Value;
 
-            // Allow the Notifications page so the user can open
-            // and acknowledge the mandatory notification.
+            // Allow the Notifications page itself.
             if (pagePath != null &&
-                pagePath.StartsWith("/Notifications",
+                pagePath.StartsWith(
+                    "/Notifications",
                     StringComparison.OrdinalIgnoreCase))
             {
                 await next();
                 return;
             }
 
-            var mandatoryPending = await _db.Notifications
-                .AsNoTracking()
-                .AnyAsync(x =>
-                    x.IsPublished &&
-                    x.IsMandatory &&
-                    !x.IsAcknowledged);
+            var username =
+                context.HttpContext.Session.GetString("Username");
+
+            var userRole =
+                context.HttpContext.Session.GetString("UserRole");
+
+            // If nobody is logged in, do not apply the notification block.
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                await next();
+                return;
+            }
+
+            var mandatoryNotifications =
+                await _db.Notifications
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.IsPublished &&
+                        x.IsMandatory &&
+                        (
+                            string.IsNullOrEmpty(x.TargetRole) ||
+                            x.TargetRole == userRole
+                        ))
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+            if (mandatoryNotifications.Count == 0)
+            {
+                await next();
+                return;
+            }
+
+            var acknowledgedNotificationIds =
+                await _db.NotificationUserStatuses
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.Username == username &&
+                        x.IsAcknowledged &&
+                        mandatoryNotifications.Contains(
+                            x.NotificationId))
+                    .Select(x => x.NotificationId)
+                    .ToListAsync();
+
+            var mandatoryPending =
+                mandatoryNotifications.Any(
+                    id => !acknowledgedNotificationIds.Contains(id));
 
             if (mandatoryPending)
             {
-                context.Result = new RedirectToPageResult("/Notifications");
+                context.Result =
+                    new RedirectToPageResult("/Notifications");
+
                 return;
             }
 

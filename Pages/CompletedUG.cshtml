@@ -1,0 +1,304 @@
+﻿@page
+@model QMSApplication.Pages.CompletedUGModel
+
+@{
+    ViewData["Title"] = "Completed UG";
+    Layout = "_PortalLayout";
+}
+
+<style>
+
+    .completed-ug-page {
+        padding: 30px;
+    }
+
+    .completed-ug-header {
+        margin-bottom: 25px;
+    }
+
+    .completed-ug-header h1 {
+        color: #123a72;
+        margin-bottom: 8px;
+    }
+
+    .completed-ug-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .filter-section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .filter-section h2 {
+        color: #123a72;
+        margin-top: 0;
+        font-size: 20px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 9px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .filter-button {
+        padding: 10px 20px;
+        background-color: #123a72;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .filter-button:hover {
+        background-color: #1d4f91;
+    }
+
+    .chart-section {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .chart-section h2 {
+        color: #123a72;
+        margin-top: 0;
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 900px;
+        height: 450px;
+        margin: 0 auto;
+    }
+
+</style>
+
+<div class="completed-ug-page">
+
+    <div class="completed-ug-header">
+
+        <h1>Completed UG Bar Chart</h1>
+
+        <p>
+            Completed UGs grouped by Milestone Name.
+        </p>
+
+    </div>
+
+    <!-- ================= FILTERS ================= -->
+
+    <div class="filter-section">
+
+        <h2>Filters</h2>
+
+        <form method="get">
+
+            <div class="filter-row">
+
+                <!-- From Date -->
+
+                <div class="filter-group">
+
+                    <label for="fromDate">
+                        From Date
+                    </label>
+
+                    <input type="date"
+                           id="fromDate"
+                           name="FromDate" />
+
+                </div>
+
+                <!-- To Date -->
+
+                <div class="filter-group">
+
+                    <label for="toDate">
+                        To Date
+                    </label>
+
+                    <input type="date"
+                           id="toDate"
+                           name="ToDate" />
+
+                </div>
+
+                <!-- Assigned To -->
+
+                <div class="filter-group">
+
+                    <label for="assignedTo">
+                        Assigned To
+                    </label>
+
+                    <select id="assignedTo"
+                            name="AssignedTo">
+
+                        <option value="">
+                            All Users
+                        </option>
+
+                        @foreach (var user in Model.ActiveUsers)
+                        {
+                            <option value="@user.Username">
+                                @user.FullName
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <button type="submit"
+                        class="filter-button">
+
+                    Apply Filters
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- ================= BAR CHART ================= -->
+
+    <div class="chart-section">
+
+        <h2>Completed UGs by Milestone</h2>
+
+        <div class="chart-container">
+
+            <canvas id="completedUGChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= CHART.JS ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    /*
+       Chart data will be connected to the
+       MySQL M&D records in the next step.
+    */
+
+const milestoneNames =
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MilestoneNames));
+
+const milestoneCounts =
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MilestoneCounts));
+
+    const chartCanvas =
+        document.getElementById("completedUGChart");
+
+    new Chart(chartCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: milestoneNames,
+
+            datasets: [{
+
+                label: "Completed UGs",
+
+                data: milestoneCounts
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        stepSize: 1
+
+                    },
+
+                    title: {
+
+                        display: true,
+
+                        text: "Count"
+
+                    }
+
+                },
+
+                x: {
+
+                    title: {
+
+                        display: true,
+
+                        text: "Milestone Name"
+
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+
+                    display: true
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>

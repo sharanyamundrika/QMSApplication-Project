@@ -525,43 +525,11 @@
                             </td>
 
                             <td>
+                               
+                              
+                               
 
-                                @{
-                                    bool isOverdue = false;
-
-                                    if (!string.IsNullOrWhiteSpace(
-                                        record.DeliverableTargetDate))
-                                    {
-                                        string[] formats =
-                                        {
-                                            "dd-MMM-yyyy",
-                                            "d-MMM-yyyy",
-                                            "dd/MM/yyyy",
-                                            "d/M/yyyy",
-                                            "MM/dd/yyyy",
-                                            "M/d/yyyy",
-                                            "dd-MM-yyyy",
-                                            "d-MM-yyyy"
-                                        };
-
-                                        if (DateTime.TryParseExact(
-                                            record.DeliverableTargetDate.Trim(),
-                                            formats,
-                                            System.Globalization.CultureInfo.InvariantCulture,
-                                            System.Globalization.DateTimeStyles.AllowWhiteSpaces,
-                                            out DateTime targetDate))
-                                        {
-                                            isOverdue =
-                                                targetDate.Date < DateTime.Today &&
-                                                !string.Equals(
-                                                    record.Status?.Trim(),
-                                                    "Completed",
-                                                    StringComparison.OrdinalIgnoreCase);
-                                        }
-                                    }
-                                }
-
-                                @if (isOverdue)
+                               @if (record.IsOverdue)
                                 {
                                     <span class="overdue-indicator">
                                         Overdue

@@ -304,6 +304,29 @@ namespace QMSApplication.Pages
                     record.Status = "Deferred";
                 }
             }
+            foreach (var record in Records)
+            {
+                record.IsOverdue = false;
+
+                if (string.IsNullOrWhiteSpace(record.DeliverableTargetDate))
+                    continue;
+
+                string status = record.Status?.Trim() ?? string.Empty;
+
+                if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase) ||
+                    status.Equals("Deferred", StringComparison.OrdinalIgnoreCase) ||
+                    status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (DateTime.TryParse(
+                    record.DeliverableTargetDate.Trim(),
+                    out DateTime targetDate))
+                {
+                    record.IsOverdue = targetDate.Date < DateTime.Today;
+                }
+            }
         }
     }
 }

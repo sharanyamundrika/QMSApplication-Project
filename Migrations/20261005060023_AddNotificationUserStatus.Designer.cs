@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QMSApplication.Models;
 
@@ -11,9 +12,11 @@ using QMSApplication.Models;
 namespace QMSApplication.Migrations
 {
     [DbContext(typeof(QMSPortalDbContext))]
-    partial class QMSPortalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261005060023_AddNotificationUserStatus")]
+    partial class AddNotificationUserStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,137 +64,6 @@ namespace QMSApplication.Migrations
                     b.ToTable("Guidelines");
                 });
 
-            modelBuilder.Entity("QMSApplication.Models.ImportBatch", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("ExceptionCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ImportedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ImportedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("SourceFileName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("varchar(300)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)");
-
-                    b.Property<int>("SuccessfulRecords")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalRecords")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ImportBatches");
-                });
-
-            modelBuilder.Entity("QMSApplication.Models.ImportException", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ExceptionReason")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("FieldName")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<long>("ImportBatchId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsReviewed")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("RecordID")
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime?>("ReviewedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ReviewedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("SourceSNo")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("SourceValue")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ImportExceptions");
-                });
-
-            modelBuilder.Entity("QMSApplication.Models.MDAuditLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("ChangedField")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("NewValue")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OldValue")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RecordCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("TimestampUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MDAuditLogs");
-                });
-
             modelBuilder.Entity("QMSApplication.Models.MDEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -201,16 +73,6 @@ namespace QMSApplication.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AssignedTo")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("ConcurrencyToken")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
 
                     b.Property<string>("DeliverableActivity")
@@ -270,12 +132,6 @@ namespace QMSApplication.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("UGs")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -378,37 +234,6 @@ namespace QMSApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NotificationUserStatuses");
-                });
-
-            modelBuilder.Entity("QMSApplication.Models.PortalUser", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PortalUsers");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,6 +7,7 @@
 }
 
 <style>
+
     .dashboard-content {
         background-color: white;
         padding: 30px;
@@ -23,6 +24,32 @@
             font-size: 16px;
             color: #333;
         }
+
+    .completion-section {
+        margin-top: 30px;
+        padding: 25px;
+        background-color: #f8f9fb;
+        border-radius: 10px;
+    }
+
+        .completion-section h2 {
+            color: #123a72;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+    .chart-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
 </style>
 
 <div class="dashboard-content">
@@ -33,4 +60,123 @@
         Select an option from the menu.
     </p>
 
+    <!-- ================= COMPLETION PIE CHART ================= -->
+
+    <div class="completion-section">
+
+        <h2>Work Completion Status</h2>
+
+        <div class="chart-container">
+
+            <canvas id="completionPieChart"></canvas>
+
+        </div>
+
+    </div>
+
 </div>
+
+<!-- ================= CHART.JS ================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const pendingCount = @Model.PendingCount;
+    const inProgressCount = @Model.InProgressCount;
+    const completedCount = @Model.CompletedCount;
+    const deferredCount = @Model.DeferredCount;
+    const cancelledCount = @Model.CancelledCount;
+
+    const total =
+        pendingCount +
+        inProgressCount +
+        completedCount +
+        deferredCount +
+        cancelledCount;
+
+    function percentage(count) {
+
+        if (total === 0) {
+            return "0%";
+        }
+
+        return ((count / total) * 100).toFixed(1) + "%";
+    }
+
+    const completionChart =
+        document.getElementById("completionPieChart");
+
+    new Chart(completionChart, {
+
+        type: "pie",
+
+        data: {
+
+            labels: [
+
+                "Pending",
+                "In Progress",
+                "Completed",
+                "Deferred",
+                "Cancelled"
+
+            ],
+
+            datasets: [{
+
+                data: [
+
+                    pendingCount,
+                    inProgressCount,
+                    completedCount,
+                    deferredCount,
+                    cancelledCount
+
+                ]
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom"
+
+                },
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            const count =
+                                context.raw;
+
+                            return context.label +
+                                ": " +
+                                count +
+                                " (" +
+                                percentage(count) +
+                                ")";
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>

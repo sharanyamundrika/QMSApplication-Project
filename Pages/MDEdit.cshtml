@@ -122,8 +122,9 @@
             else
             {
                 <form method="post">
-
                     <input type="hidden" asp-for="Record.RecordID" />
+
+                    <input type="hidden" asp-for="Record.ConcurrencyToken" />
 
                     <div class="field">
                         <label>S.No</label>

@@ -321,7 +321,24 @@ namespace QMSApplication.Pages
 
                 return Page();
             }
+            // =========================================
+            // CONCURRENCY CHECK
+            // =========================================
 
+            if (Record.ConcurrencyToken == Guid.Empty)
+            {
+                Message =
+                    "Record version information is missing. " +
+                    "Please reload the record and try again.";
+
+                return Page();
+            }
+
+            _db.Entry(entity)
+                .Property(x => x.ConcurrencyToken)
+                .OriginalValue = Record.ConcurrencyToken;
+
+            entity.ConcurrencyToken = Guid.NewGuid();
 
             // =========================================
             // COMPLETION DATE
@@ -529,22 +546,104 @@ namespace QMSApplication.Pages
 
             entity.UGs =
                 Record.UGs;
+            // =========================================
+            // UPDATE AUDIT INFORMATION
+            // =========================================
 
+            entity.UpdatedAtUtc = DateTime.UtcNow;
+
+            entity.UpdatedBy =
+                HttpContext.Session.GetString("Username")
+                ?? HttpContext.Session.GetString("LoggedInUser")
+                ?? "System";
+            // =========================================
+            // CREATE M&D AUDIT LOGS FOR CHANGED FIELDS
+            // =========================================
+
+            string auditUsername =
+    HttpContext.Session.GetString("Username")
+    ?? HttpContext.Session.GetString("LoggedInUser")
+    ?? "System";
+
+            var entry = _db.Entry(entity);
+
+            string FormatAuditValue(object? value)
+            {
+                if (value == null)
+                    return string.Empty;
+
+                if (value is DateOnly dateOnly)
+                    return dateOnly.ToString("yyyy-MM-dd");
+
+                return value.ToString() ?? string.Empty;
+            }
+
+            void AddAuditLog(string propertyName, string displayName)
+            {
+                string oldValue = FormatAuditValue(
+                    entry.OriginalValues[propertyName]);
+
+                string newValue = FormatAuditValue(
+                    entry.CurrentValues[propertyName]);
+
+                if (oldValue == newValue)
+                    return;
+
+                _db.MDAuditLogs.Add(new MDAuditLog
+                {
+                    TimestampUtc = DateTime.UtcNow,
+                    Username = auditUsername,
+                    RecordCode = entity.RecordID,
+                    Action = "Update",
+                    ChangedField = displayName,
+                    OldValue = oldValue,
+                    NewValue = newValue
+                });
+            }
+
+            AddAuditLog(nameof(MDEntity.MilestoneName), "MilestoneName");
+            AddAuditLog(nameof(MDEntity.DeliverableName), "DeliverableName");
+            AddAuditLog(nameof(MDEntity.DeliverableType), "DeliverableType");
+            AddAuditLog(nameof(MDEntity.MilestoneTargetDate), "MilestoneTargetDate");
+            AddAuditLog(nameof(MDEntity.DeliverableTargetDate), "DeliverableTargetDate");
+            AddAuditLog(nameof(MDEntity.AssignedTo), "AssignedTo");
+            AddAuditLog(nameof(MDEntity.ScheduleDeviation), "ScheduleDeviation");
+            AddAuditLog(nameof(MDEntity.DeliverableActivity), "DeliverableActivity");
+            AddAuditLog(nameof(MDEntity.DeviationReason), "DeviationReason");
+            AddAuditLog(
+                nameof(MDEntity.DeliverableActualCompletedDate),
+                "DeliverableActualCompletedDate");
+            AddAuditLog(
+                nameof(MDEntity.MilestoneAchievedDate),
+                "MilestoneAchievedDate");
+            AddAuditLog(nameof(MDEntity.Status), "Status");
+            AddAuditLog(nameof(MDEntity.Remarks), "Remarks");
+            AddAuditLog(nameof(MDEntity.UGs), "UGs");
 
             // =========================================
             // SAVE TO MYSQL
             // =========================================
 
-            _db.SaveChanges();
 
 
-            Message =
-                "Record updated successfully in MySQL.";
+            try
+            {
+                _db.SaveChanges();
+
+                Message = "Record updated successfully in MySQL.";
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                Message = "This record was changed by another user. Please reload the record and try again.";
+            }
+            catch (Exception ex)
+            {
+                Message = "Error while saving record: " + ex.Message;
+            }
 
             return Page();
+
         }
-
-
         // =========================================
         // FIND RECORD FROM MYSQL
         // =========================================
@@ -568,7 +667,7 @@ namespace QMSApplication.Pages
             {
                 return null;
             }
-
+           
 
             string status =
                 entity.Status?.Trim() ?? "";
@@ -607,7 +706,8 @@ namespace QMSApplication.Pages
             {
                 RecordID =
                     entity.RecordID,
-
+                ConcurrencyToken =
+                    entity.ConcurrencyToken,
                 SNo =
                     entity.SNo,
 
@@ -798,7 +898,7 @@ namespace QMSApplication.Pages
                 "M/d/yyyy",
                 "yyyy-MM-dd"
             };
-
+            
 
             if (DateTime.TryParseExact(
                 text,

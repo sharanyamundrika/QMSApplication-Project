@@ -21,8 +21,10 @@
     }
     else
     {
-        @foreach (var notification in Model.Notifications)
+        @foreach (var item in Model.Notifications)
         {
+            var notification = item.Notification;
+
             <div class="notification-card
                 @(notification.IsMandatory ? "mandatory" : "")">
 
@@ -39,13 +41,16 @@
                 </div>
 
                 <div class="notification-details">
+
                     <span>
                         Date:
-                        @notification.NotificationDateUtc.ToLocalTime().ToString("dd-MMM-yyyy HH:mm")
+                        @notification.NotificationDateUtc
+                            .ToLocalTime()
+                            .ToString("dd-MMM-yyyy HH:mm")
                     </span>
 
                     <span>
-                        @(notification.IsRead ? "Read" : "Unread")
+                        @(item.IsRead ? "Read" : "Unread")
                     </span>
 
                     @if (notification.IsMandatory)
@@ -54,16 +59,19 @@
                             Mandatory Read
                         </span>
                     }
+
                 </div>
 
                 @if (notification.IsMandatory &&
-                     !notification.IsAcknowledged)
+                     !item.IsAcknowledged)
                 {
                     <div class="acknowledgement-warning">
                         This notification must be acknowledged.
                     </div>
 
-                    <form method="post">
+                    <form method="post"
+                          asp-page-handler="Acknowledge">
+
                         <input type="hidden"
                                name="id"
                                value="@notification.Id" />
@@ -72,9 +80,10 @@
                                 class="acknowledge-button">
                             Acknowledge
                         </button>
+
                     </form>
                 }
-                else if (notification.IsAcknowledged)
+                else if (item.IsAcknowledged)
                 {
                     <div class="acknowledged">
                         ✓ Acknowledged
@@ -98,14 +107,14 @@
         margin-bottom: 25px;
     }
 
-        .page-header h1 {
-            margin-bottom: 8px;
-        }
+    .page-header h1 {
+        margin-bottom: 8px;
+    }
 
-        .page-header p {
-            color: #666;
-            margin: 0;
-        }
+    .page-header p {
+        color: #666;
+        margin: 0;
+    }
 
     .notification-card {
         background: white;
@@ -115,9 +124,9 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-        .notification-card.mandatory {
-            border-left: 5px solid #d9534f;
-        }
+    .notification-card.mandatory {
+        border-left: 5px solid #d9534f;
+    }
 
     .notification-header {
         display: flex;
@@ -126,9 +135,9 @@
         gap: 15px;
     }
 
-        .notification-header h2 {
-            margin: 0;
-        }
+    .notification-header h2 {
+        margin: 0;
+    }
 
     .priority {
         background-color: #123a72;
@@ -175,9 +184,9 @@
         cursor: pointer;
     }
 
-        .acknowledge-button:hover {
-            background-color: #1d4f91;
-        }
+    .acknowledge-button:hover {
+        background-color: #1d4f91;
+    }
 
     .acknowledged {
         margin-top: 18px;

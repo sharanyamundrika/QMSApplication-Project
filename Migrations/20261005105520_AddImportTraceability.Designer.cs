@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QMSApplication.Models;
 
@@ -11,9 +12,11 @@ using QMSApplication.Models;
 namespace QMSApplication.Migrations
 {
     [DbContext(typeof(QMSPortalDbContext))]
-    partial class QMSPortalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261005105520_AddImportTraceability")]
+    partial class AddImportTraceability
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,48 +153,6 @@ namespace QMSApplication.Migrations
                     b.ToTable("ImportExceptions");
                 });
 
-            modelBuilder.Entity("QMSApplication.Models.MDAuditLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("ChangedField")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("NewValue")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("OldValue")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RecordCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("TimestampUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MDAuditLogs");
-                });
-
             modelBuilder.Entity("QMSApplication.Models.MDEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -201,16 +162,6 @@ namespace QMSApplication.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AssignedTo")
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("ConcurrencyToken")
-                        .IsConcurrencyToken()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
 
                     b.Property<string>("DeliverableActivity")
@@ -270,12 +221,6 @@ namespace QMSApplication.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("UGs")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedAtUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
